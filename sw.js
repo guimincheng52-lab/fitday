@@ -1,5 +1,5 @@
 const CACHE = 'fitday-v1'
-const URLS = ['/', '/index.html', '/manifest.json', '/icon.svg']
+const URLS = ['/fitday/', '/fitday/index.html', '/fitday/manifest.json', '/fitday/icon.svg']
 
 self.addEventListener('install', e => {
   e.waitUntil(
