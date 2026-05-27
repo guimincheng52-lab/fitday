@@ -2,16 +2,21 @@
   "name": "FitDay 健身打卡",
   "short_name": "FitDay",
   "description": "健身训练打卡助手 - 你的私人健身管家",
-  "start_url": "/fitday/",
+  "start_url": "/fitday/index.html",
   "display": "standalone",
   "background_color": "#f5f5f5",
   "theme_color": "#1a1a2e",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/fitday/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/fitday/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/fitday/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
