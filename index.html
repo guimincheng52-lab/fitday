@@ -380,7 +380,7 @@ function getTemplateList(){
 // ============================================================
 let currentTab='today'
 $$('.tab-item').forEach(i=>i.addEventListener('click',()=>switchTab(i.dataset.tab)))
-function switchTab(tab){currentTab=tab;$$('.tab-item').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));$$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+tab));if(tab==='today')renderToday();if(tab==='templates')renderTemplates();if(tab==='history')renderHistory()}
+function switchTab(tab){currentTab=tab;$$('.tab-item').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));$$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+tab));if(tab==='today')renderToday();if(tab==='plan')renderPlan();if(tab==='templates')renderTemplates();if(tab==='history')renderHistory()}
 
 // ============================================================
 // TODAY PAGE
@@ -499,7 +499,7 @@ function renderTemplates(){
 $('#tpl-list').addEventListener('click',function(e){
   const editBtn=e.target.closest('[data-edit]'),delBtn=e.target.closest('[data-delete]')
   if(delBtn){const key=delBtn.dataset.delete;if(confirm('确定删除模板「'+getCustomTemplates()[key]?.name+'」吗？')){const ct=getCustomTemplates();delete ct[key];setData('customTemplates',ct);renderTemplates()}}
-  if(editBtn){const key=editBtn.dataset.delete;const ct=getCustomTemplates(),tpl=ct[key];if(tpl)openTemplateEditor(key,tpl)}
+  if(editBtn){const key=editBtn.dataset.edit;const ct=getCustomTemplates(),tpl=ct[key];if(tpl)openTemplateEditor(key,tpl)}
 })
 
 $('#new-tpl-btn').addEventListener('click',()=>openTemplateEditor(null,{name:'',icon:'🎯',exercises:[{name:'',sets:'4组',reps:'12次'}]}))
