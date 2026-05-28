@@ -76,8 +76,18 @@
     .action-card{margin-top:2rem}
     .action-card button:disabled{background:#ccc;cursor:not-allowed}
 
+    /* Check-in button animations */
+    @keyframes btn-checkin{0%{transform:scale(.92);box-shadow:0 0 0 0 rgba(233,69,96,.35)}40%{transform:scale(1.04);box-shadow:0 0 0 1.2rem rgba(233,69,96,.12)}70%{transform:scale(.98)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(233,69,96,0)}}
+    @keyframes light-spread{0%{opacity:0;transform:scale(.1)}30%{opacity:1}100%{opacity:0;transform:scale(2.5)}}
+    .btn-primary.anim{animation:btn-checkin .5s ease-out}
+    .btn-primary.done{background:linear-gradient(135deg,#22c55e,#16a34a);transition:background .4s,transform .3s}
+    @keyframes fade-up{0%{opacity:0;transform:translateY(.4rem)}100%{opacity:1;transform:translateY(0)}}
+    @keyframes count-pop{0%{transform:scale(1)}50%{transform:scale(1.25);color:#e94560}100%{transform:scale(1)}}
+
     /* Button */
-    .btn-primary{display:block;width:100%;padding:2.4rem 0;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;border:none;border-radius:5rem;font-size:3.2rem;font-weight:600;text-align:center;cursor:pointer;transition:.2s}
+    .btn-primary{display:block;width:100%;padding:2.4rem 0;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;border:none;border-radius:5rem;font-size:3.2rem;font-weight:600;text-align:center;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+    .btn-primary::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.3),transparent 60%);opacity:0;pointer-events:none}
+    .btn-primary.anim::after{animation:light-spread .5s ease-out}
     .btn-primary:active:not(:disabled){opacity:.85}
     .btn-secondary{display:block;width:100%;padding:2rem 0;background:#f0f0f0;color:#333;border:none;border-radius:5rem;font-size:2.8rem;font-weight:500;text-align:center;cursor:pointer;transition:.2s;margin-top:1.6rem}
     .btn-secondary:active{opacity:.8}
@@ -451,7 +461,8 @@ function renderToday(){
     todayEl.appendChild(div)
   })
 
-  const btn=$('#checkin-btn');btn.disabled=!ac||checkedIn;btn.textContent=checkedIn?'今日已打卡 ✅':(ac?'完成打卡':'完成打卡')
+  const btn=$('#checkin-btn');btn.disabled=!ac||checkedIn;btn.classList.toggle('done',checkedIn)
+  btn.innerHTML=checkedIn?'<span style="display:inline-block">今日已打卡 ✅</span>':(ac?'完成打卡':'完成打卡')
   todayEl.dataset.checkedStatus=JSON.stringify(cs);todayEl.dataset.checkedIn=checkedIn?'1':'0';todayEl.dataset.templateKey=tKey
 }
 
@@ -462,15 +473,27 @@ $('#exercise-list').addEventListener('click',function(e){
   const template=getTemplate(this.dataset.templateKey)
   const cc=status.filter(Boolean).length,tc=template.exercises.length,ac=cc===tc,pt=(cc/tc*100)
   $('#today-progress-text').textContent=cc+'/'+tc+' 已完成';$('#progress-fill').style.width=pt+'%';$('#checkin-btn').disabled=!ac
+  if(cc>0){const el=$('#today-progress-text');el.style.animation='none';void el.offsetWidth;el.style.animation='count-pop .35s ease-out'}
   item.classList.toggle('done',status[index]);const cb=item.querySelector('.checkbox');cb.classList.toggle('checked',status[index]);item.querySelector('.checkmark').style.display=status[index]?'':'none'
 })
 
 $('#checkin-btn').addEventListener('click',function(){
   if(this.disabled||this.textContent.includes('已打卡'))return
+  // Haptic feedback
+  if(navigator.vibrate)navigator.vibrate(10)
+  // Click animation
+  this.classList.remove('anim');void this.offsetWidth;this.classList.add('anim')
   const list=$('#exercise-list'),status=JSON.parse(list.dataset.checkedStatus),records=getData('records',{})
   const todayStr=formatDate(new Date()),tKey=list.dataset.templateKey,template=getTemplate(tKey)
   records[todayStr]={date:todayStr,template:template.name,templateKey:tKey,status:status,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}
-  setData('records',records);list.dataset.checkedIn='1';this.disabled=true;this.textContent='今日已打卡 ✅';showToast('打卡成功 🎉')
+  setData('records',records);list.dataset.checkedIn='1'
+  // Success state after animation
+  setTimeout(()=>{
+    this.classList.remove('anim');this.classList.add('done')
+    this.innerHTML='<span style="animation:fade-up .35s ease-out forwards;display:inline-block">今日已打卡 ✅</span>';this.disabled=true
+    showToast('🎉 打卡成功')
+    const pt=$('#today-progress-text');pt.style.animation='none';void pt.offsetWidth;pt.style.animation='count-pop .5s ease-out'
+  },500)
 })
 
 // ============================================================
